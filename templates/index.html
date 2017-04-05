@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+        <script src="https://cdn.bootcss.com/react/15.4.2/react.min.js"></script>
+        <script src="https://cdn.bootcss.com/react/15.4.2/react-dom.min.js"></script>
+        <script src="https://cdn.bootcss.com/babel-standalone/6.22.1/babel.min.js"></script>
+
+    <style>
+        .centTable{
+            text-align: center;
+        }
+    .editbtn{
+        width: 70px;
+    }
+    .username{
+        margin:10px auto;
+    }
+    .modalContent{
+        text-align: center;
+    }
+    </style>
+{% endblock %}
+{% block title %} Home {% endblock %}
+{% block body %}
+    <div id="content"></div>
+    <script type="text/babel">
+{#        var userinfo ={{ users }};#}
+        var userinfo=[
+            {id: 1,name:'YoungG',description:"this is static data for test"},
+            {id: 2,name:'Frank',description:"this is static data for test"},
+            {id: 3,name:'Ivy',description:"this is static data for test"},
+            {id: 4,name:'Kerry',description:"this is static data for test"},
+            {id: 5,name:'Jim',description:"this is static data for test"}
+        ];
+
+        var ModalContent =React.createClass({
+
+
+{#            componentWillReceiveProps:function (nextProps) {#}
+{#                this.setState({#}
+{#                    desc:nextProps.userinfo.description,#}
+{#                    name:nextProps.userinfo.name#}
+{##}
+{#                })#}
+{#            },#}
+
+            getInitialState:function () {
+
+                return{
+                    desc:"",
+                    name:''
+                };
+            },
+            descChanged:function (e) {
+                this.setState({
+                    desc:e.target.value
+                });
+            },
+            nameChanged:function (e) {
+                this.setState({
+                    name:e.target.value
+                });
+
+            },
+            render:function () {
+                return(
+
+                        <div className="modalContent modal-body">
+                            <div className="username">
+                                <label htmlFor="username">username:</label>
+                                <input type="text" readonly ref="name" name="username" onChange={this.nameChanged.bind(this)} value={this.props.userinfo.name} />
+                            </div>
+                            <div className="desc">
+                                <label htmlFor="desc">description:</label>
+                                <textarea type="text" ref="desc" name="description"  onChange={this.descChanged.bind(this)} value ={this.state.desc} ></textarea>
+                            </div>
+                        </div>
+                )
+
+            }
+        })
+        var EditForm = React.createClass({
+{#            componentWillReceiveProps(nextProps) {#}
+{#                this.setState({userinfo: nextProps.userinfo});#}
+{#            },#}
+
+            render:function () {
+                var updateApi = "/updateUser/"+this.props.userinfo.id
+                return(
+                        <form className="editUser" method="POST" action={updateApi}>
+
+                            <ModalContent userinfo={this.props.userinfo} />
+                            <div className="modal-footer">
+                                <input type="reset" className="btn btn-default editbtn" data-dismiss="modal" value="Cancel"/>
+                                <input type="submit" className="btn btn-primary editbtn" value="OK"/>
+                            </div>
+                        </form>
+                )
+
+            }
+        })
+
+        var ModalWindow = React.createClass({
+{#            componentWillReceiveProps(nextProps) {#}
+{#                this.setState({userinfo: nextProps.userinfo});#}
+{#            },#}
+
+            render:function () {
+                return(
+
+                        <div id="myModal" className="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <button type="button" className="close" data-dismiss="modal" aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <h4 className="modal-title" id="myModalLabel">
+                                           Update
+                                        </h4>
+                                    </div>
+                                    <div className="modal-body">
+                                        <EditForm userinfo={this.props.userinfo}/>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                )
+
+            }
+        });
+
+        var ContentTable = React.createClass({
+
+            getInitialState:function () {
+                return {data:[],userinfo:''};
+            },
+            modalShow(user,event){
+                this.setState({userinfo:user})
+                $("#myModal").modal('show');
+            },
+            handleRemove(id,event){
+{#                var delApi = "/remove/"+id;#}
+                $.ajax({
+                    url:"/remove/"+id,
+                    dataType:'json',
+                    cache:false,
+                    success:function () {
+
+
+                    }.bind(this),
+                    error:function (xhr,status,err) {
+                        console.error(this.props.url,status,err.toString());
+                    }.bind(this)
+                })
+            },
+            loadCommentsFromServer:function () {
+                $.ajax({
+                    url:this.props.url,
+{#                    url:'/allinfo',#}
+                    dataType:'json',
+                    cache:false,
+                    success:function (data) {
+                        this.setState({data:data.users})
+                    }.bind(this),
+                    error:function (xhr,status,err) {
+                        console.error(this.props.url,status,err.toString());
+                    }.bind(this)
+                });
+            },
+
+            componentDidMount: function() {
+                this.loadCommentsFromServer();
+                setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+            },
+            render:function () {
+
+                var reacttrs = this.state.data.map(function (user) {
+                    var userinfo ={'id':user.id,'name':user.name,'description':user.description}
+                    return(
+
+
+                                <tr>
+{#                                    <td><input type="checkbox" value={user.id}/></td>#}
+                                    <td>{user.id}</td>
+                                    <td>{user.name}</td>
+                                    <td>{user.description}</td>
+                                    <td><button className="editbtn" onClick={this.modalShow.bind(this,userinfo) }>edit</button></td>
+                                    <td><button className="editbtn" onClick={this.handleRemove.bind(this,user.id) }>Remove</button></td>
+
+                                </tr>
+
+
+                    );
+
+                },this);
+
+                return(
+                        <div>
+                            <table className="table">
+                                <caption>基本的表格布局</caption>
+                                   <thead>
+                                      <tr>
+                                        <th>id</th>
+                                        <th>name</th>
+                                        <th>description</th>
+                                        <th></th>
+                                        <th></th>
+                                      </tr>
+                                   </thead>
+                                   <tbody>
+                                   {reacttrs}
+                                   </tbody>
+                            </table>
+                            <ModalWindow userinfo={this.state.userinfo }/>
+                        </div>
+
+                )
+            }
+        })
+
+        ReactDOM.render(
+                <ContentTable url = "/allinfo" pollInterval={2000}/>,
+                document.getElementById('content')
+
+        )
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block title %} Register {% endblock %}
+{% block body %}
+{% if message %} {{ message }} {% endif %}
+    <form method="post">
+        <div align="center">
+            <h1>flask web:Add one user to DB</h1>
+            <div>
+    {#            <input type="text" placeholder="username" name ="username">#}
+                username: {{ form.username }}
+            </div>
+            <div>
+    {#            <input type="password" placeholder="password" name ="password">#}
+                description:{{ form.description }}
+            </div>
+            <div>
+                <input type="submit" name="Submit" value="submit" />
+                <input type="reset" value="reset"/>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}

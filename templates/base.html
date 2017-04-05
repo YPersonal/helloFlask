@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta charset="UTF-8">
+        <title>Hello World, flask{% block title %}{% endblock %} </title>
+        <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+        <style>
+            .nav > li > a{
+                color:white;
+
+            }
+        .nav > li > a:hover{
+            background-color: #999999;
+            opacity: 0.7;
+        }
+        </style>
+    {% endblock %}
+</head>
+<body>
+<div style="background-color: #0099cc;">
+    <div>
+        <ul class="nav nav-pills">
+          <li role="presentation" class="active"><a href="/">Home</a></li>
+          <li role="presentation"><a href="/register">Register</a></li>
+          <li role="presentation"><a href="/about">About</a></li>
+        </ul>
+    </div>
+</div>
+{% if message %} {{ message }} {% endif %}
+{% block body %}
+
+{% endblock %}
+</body>
+</html>
